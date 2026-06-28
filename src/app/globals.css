@@ -1,0 +1,455 @@
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Fredoka:wght@300;400;500;600;700&family=Patrick+Hand&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-color: #fcf9f2; /* Creamy warm math paper */
+  --panel-bg: #ffffff; /* Clean sheet of notebook paper */
+  --panel-border: #1e293b; /* Charcoal slate border */
+  --text-primary: #0f172a; /* Dark text */
+  --text-secondary: #475569; /* Muted text */
+  
+  --accent-primary: #3b82f6; /* Playful mathematical blue */
+  --accent-secondary: #ec4899; /* Playful mathematical pink */
+  --accent-glow: rgba(59, 130, 246, 0.15);
+  
+  /* Bright hand-drawn highlighter colors */
+  --highlight-collocation: rgba(216, 180, 254, 0.7); /* Highlighter purple */
+  --highlight-collocation-border: #c084fc;
+  
+  --highlight-vocabulary: rgba(186, 230, 253, 0.7); /* Highlighter blue */
+  --highlight-vocabulary-border: #38bdf8;
+  
+  --highlight-grammar: rgba(254, 205, 211, 0.7); /* Highlighter pink/red */
+  --highlight-grammar-border: #fb7185;
+  
+  --font-sans: 'Fredoka', sans-serif;
+  --font-display: 'Patrick Hand', cursive;
+  --font-handwritten: 'Comic Neue', cursive;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  /* Creamy paper with soft grid pattern */
+  background-image: 
+    linear-gradient(rgba(224, 216, 201, 0.45) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(224, 216, 201, 0.45) 1px, transparent 1px);
+  background-size: 26px 26px;
+  position: relative;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #1e293b;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  outline: none;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Neobrutalist Sticker/Paper Panel */
+.glass-panel {
+  background: var(--panel-bg);
+  border: 2.5px solid var(--panel-border);
+  border-radius: 16px;
+  box-shadow: 4px 4px 0px 0px var(--panel-border);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+/* Base Inputs */
+input[type="text"], input[type="password"] {
+  background: #ffffff;
+  border: 2.5px solid var(--panel-border);
+  color: var(--text-primary);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 1rem;
+  width: 100%;
+  transition: all 0.2s ease;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 3px 3px 0px 0px var(--panel-border);
+}
+
+/* Neobrutalist Buttons */
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  border: 2.5px solid var(--panel-border);
+  box-shadow: 3.5px 3.5px 0px 0px var(--panel-border);
+  font-family: var(--font-sans);
+  letter-spacing: 0.01em;
+}
+
+.btn-primary:hover {
+  transform: translate(-1.5px, -1.5px);
+  box-shadow: 5px 5px 0px 0px var(--panel-border);
+  background: #2563eb;
+}
+
+.btn-primary:active {
+  transform: translate(2.5px, 2.5px);
+  box-shadow: 1px 1px 0px 0px var(--panel-border);
+}
+
+.btn-secondary {
+  background: #ffffff;
+  color: var(--text-primary);
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 2.5px solid var(--panel-border);
+  font-weight: 500;
+  box-shadow: 2px 2px 0px 0px var(--panel-border);
+}
+
+.btn-secondary:hover {
+  background: #f8fafc;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px 0px var(--panel-border);
+}
+
+.btn-secondary:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px 0px var(--panel-border);
+}
+
+/* Layout */
+.app-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+  height: 100vh;
+}
+
+@media (max-width: 1024px) {
+  .app-container {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+/* Unified Workspace Editor */
+.editor-container {
+  position: relative;
+  width: 100%;
+  height: 60vh;
+  font-size: 1.25rem;
+  line-height: 1.8;
+  font-family: var(--font-sans);
+}
+
+.editor-textarea, .editor-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 2rem;
+  border-radius: 16px;
+  font-size: inherit;
+  line-height: inherit;
+  font-family: inherit;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-y: auto;
+}
+
+.editor-textarea {
+  background: transparent;
+  color: var(--text-primary);
+  border: 2.5px solid var(--panel-border);
+  resize: none;
+  z-index: 2;
+  caret-color: var(--accent-primary);
+}
+
+.editor-textarea:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 4px 4px 0px 0px var(--panel-border);
+}
+
+/* Overlay for highlights */
+.editor-overlay {
+  z-index: 1;
+  color: transparent; /* Text is invisible, only highlights show */
+  background: var(--panel-bg);
+  border: 2.5px solid transparent;
+}
+
+.highlight {
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+  pointer-events: auto; /* Allow clicking on highlights */
+  padding: 2px 0;
+}
+
+.highlight.vocabulary {
+  background-color: var(--highlight-vocabulary);
+  border-bottom: 2px dashed var(--highlight-vocabulary-border);
+}
+
+.highlight.collocation {
+  background-color: var(--highlight-collocation);
+  border-bottom: 2px dashed var(--highlight-collocation-border);
+}
+
+.highlight:hover {
+  filter: brightness(0.95);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border: 2.5px solid var(--bg-color);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Navigation Layouts */
+.main-header {
+  border-bottom: 2.5px solid var(--panel-border);
+  background: var(--bg-color);
+  z-index: 50;
+  position: sticky;
+  top: 0;
+}
+
+.nav-tab {
+  position: relative;
+  padding: 1rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  font-family: var(--font-sans);
+}
+
+.nav-tab:hover {
+  color: var(--text-primary);
+}
+
+.nav-tab.active {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.nav-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2.5px;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: var(--accent-secondary);
+  border-radius: 2px;
+  border-left: 2px solid var(--panel-border);
+  border-right: 2px solid var(--panel-border);
+  border-top: 2px solid var(--panel-border);
+}
+
+/* Practice Center Dashboard */
+.practice-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.practice-card {
+  background: var(--panel-bg);
+  border: 2.5px solid var(--panel-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  box-shadow: 4px 4px 0px 0px var(--panel-border);
+}
+
+.practice-card:hover {
+  border-color: var(--panel-border);
+  box-shadow: 6px 6px 0px 0px var(--panel-border);
+  transform: translate(-2px, -2px);
+}
+
+/* Option Buttons for Quizzes */
+.option-btn {
+  width: 100%;
+  text-align: left;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  border: 2.5px solid var(--panel-border);
+  background: #ffffff;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 2px 2px 0px 0px var(--panel-border);
+}
+
+.option-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px 0px var(--panel-border);
+}
+
+.option-btn.selected {
+  border-color: var(--accent-primary);
+  background: rgba(59, 130, 246, 0.06);
+  box-shadow: 3px 3px 0px 0px var(--accent-primary);
+}
+
+.option-btn.correct {
+  border-color: #10b981;
+  background: #ecfdf5;
+  color: #065f46;
+  box-shadow: 3px 3px 0px 0px #10b981;
+}
+
+.option-btn.wrong {
+  border-color: #ef4444;
+  background: #fef2f2;
+  color: #991b1b;
+  box-shadow: 3px 3px 0px 0px #ef4444;
+}
+
+/* Quiz progress tracker dots */
+.progress-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  border: 1.5px solid var(--panel-border);
+  transition: all 0.3s ease;
+}
+
+.progress-dot.active {
+  background: var(--accent-primary);
+  box-shadow: 0 0 0 2.5px var(--panel-border);
+  transform: scale(1.15);
+}
+
+.progress-dot.correct {
+  background: #10b981;
+}
+
+.progress-dot.wrong {
+  background: #ef4444;
+}
+
+/* AI sandbox textarea and results */
+.sandbox-textarea {
+  width: 100%;
+  min-height: 100px;
+  background: #ffffff;
+  border: 2.5px solid var(--panel-border);
+  color: var(--text-primary);
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 0.95rem;
+  resize: vertical;
+  transition: all 0.2s;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.sandbox-textarea:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 3px 3px 0px 0px var(--panel-border);
+}
+
+/* Grid Override when Sidebar is hidden */
+.app-container-workspace {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 1.5rem;
+  height: calc(100vh - 4.5rem);
+}
+
+@media (max-width: 1024px) {
+  .app-container-workspace {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+/* Scrollbar-none utility */
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
+}
+.scrollbar-none {
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
+}
+
+/* Mobile optimizations for editor and layout */
+@media (max-width: 768px) {
+  .app-container-workspace {
+    padding: 0.75rem;
+    gap: 1rem;
+  }
+  .editor-textarea, .editor-overlay {
+    padding: 1.25rem;
+  }
+  .btn-primary {
+    padding: 10px 18px;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+}
