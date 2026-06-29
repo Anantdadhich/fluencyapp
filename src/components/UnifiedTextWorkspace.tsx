@@ -7,7 +7,7 @@ import { Highlight, VocabularyUpgrade } from "@/lib/types";
 import { Sparkles } from "lucide-react";
 
 interface WorkspaceProps {
-  onAnalyze: (text: string, audioBlob?: Blob) => Promise<void>;
+  onAnalyze: (text: string, audioBlob?: Blob) => Promise<any>;
   isProcessing: boolean;
   highlights: Highlight[];
   vocabularyUpgrades: VocabularyUpgrade[];
@@ -15,7 +15,12 @@ interface WorkspaceProps {
 
 export function UnifiedTextWorkspace({ onAnalyze, isProcessing, highlights, vocabularyUpgrades }: WorkspaceProps) {
   const [text, setText] = useState("");
-  const [activePopover, setActivePopover] = useState<{ upgrade: VocabularyUpgrade, pos: { top: number, left: number } } | null>(null);
+  const [activePopover, setActivePopover] = useState<{ 
+    upgrade: VocabularyUpgrade; 
+    pos: { top: number; left: number };
+    indexStart: number;
+    indexEnd: number;
+  } | null>(null);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -47,7 +52,14 @@ export function UnifiedTextWorkspace({ onAnalyze, isProcessing, highlights, voca
   };
 
   const handleAudioBlob = async (blob: Blob) => {
-    await onAnalyze(text, blob);
+    try {
+      const result = await onAnalyze(text, blob);
+      if (result && result.transcribedText) {
+        setText(result.transcribedText);
+      }
+    } catch (err) {
+      console.error("Audio transcription fallback error", err);
+    }
   };
 
   const handleHighlightClick = (e: React.MouseEvent, type: string, indexStart: number, indexEnd: number) => {
@@ -65,9 +77,20 @@ export function UnifiedTextWorkspace({ onAnalyze, isProcessing, highlights, voca
           pos: { 
             top: (rect.bottom - (parentRect?.top || 0)), 
             left: (rect.left - (parentRect?.left || 0)) 
-          }
+          },
+          indexStart,
+          indexEnd
         });
       }
+    }
+  };
+
+  const handleApplyUpgrade = (recommended: string) => {
+    if (activePopover) {
+      const { indexStart, indexEnd } = activePopover;
+      const newText = text.substring(0, indexStart) + recommended + text.substring(indexEnd);
+      setText(newText);
+      setActivePopover(null);
     }
   };
 
@@ -126,7 +149,7 @@ export function UnifiedTextWorkspace({ onAnalyze, isProcessing, highlights, voca
         </div>
       </div>
 
-      <div className="flex-1 relative bg-white" onClick={() => setActivePopover(null)}>
+      <div className="flex-1 relative bg-white min-h-[280px] lg:min-h-0" onClick={() => setActivePopover(null)}>
         {/* The overlay renders the colored background blocks */}
         <div 
           ref={overlayRef}
@@ -152,6 +175,7 @@ export function UnifiedTextWorkspace({ onAnalyze, isProcessing, highlights, voca
             upgrade={activePopover.upgrade} 
             position={activePopover.pos} 
             onClose={() => setActivePopover(null)} 
+            onApply={handleApplyUpgrade}
           />
         )}
       </div>

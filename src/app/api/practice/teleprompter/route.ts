@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { Type, Schema } from "@google/genai";
-import { generateGeminiContent } from "@/lib/gemini";
+import { generateGeminiContent, cleanJsonString } from "@/lib/gemini";
 
 export const runtime = "nodejs";
 
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     const today = new Date().toDateString();
 
     const prompt = `
-You are an expert English Speech Coach and Toastmasters Design Lead.
+You are an expert English Speech Coach and Toastmasters Design Lead focusing on B2/C1 intermediate to upper-intermediate fluency levels.
 Today's date is: "${today}". Use this date as a seed to ensure the generated speech varies daily.
 
 Generate an oral reading practice text.
@@ -51,8 +51,8 @@ If the category is one of the four default styles (speaking, corporate, storytel
 
 Instructions:
 1. Generate a title for the speech.
-2. Generate a highly rhythmic, engaging speech text (120-150 words) with expressive punctuation (commas, semicolons, em-dashes, and exclamation marks) that naturally guide tonality, pauses, and speech speed.
-3. Identify exactly 5-8 key words from the speech text that the speaker should emphasize or stress to project confidence and natural native-like cadence. Output them in "stressedWords".
+2. Generate a highly rhythmic, engaging speech text (120-150 words) with expressive punctuation (commas, semicolons, em-dashes, and exclamation marks) that naturally guide tonality, pauses, and speech speed. Keep the language clear, inspiring, and easy to read (B2/C1 level). Use common professional topics, business wisdom, or storytelling themes with smooth phrasing so the speaker can easily master the pacing and tonality without stumbling over extremely complex or tongue-twisting native-level vocabulary.
+3. Identify exactly 5-8 key words from the speech text that the speaker should emphasize or stress to project confidence and natural cadence. Output them in "stressedWords".
 4. Provide exactly 3 helpful speech tips tailored specifically to the style, pacing, and rhythm of this generated text.
 
 Output strictly valid JSON matching the requested schema.
@@ -68,7 +68,8 @@ Output strictly valid JSON matching the requested schema.
        throw new Error("No speech generated");
     }
 
-    const result = JSON.parse(outputText);
+    const cleanedJson = cleanJsonString(outputText);
+    const result = JSON.parse(cleanedJson);
     return NextResponse.json(result);
 
   } catch (error: any) {

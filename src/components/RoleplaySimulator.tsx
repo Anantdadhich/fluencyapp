@@ -387,19 +387,19 @@ export function RoleplaySimulator({ onComplete, initialPersonaId }: RoleplaySimu
             <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-violet-500" /> Create your own custom scenario:
             </h4>
-            <form onSubmit={handleCustomSubmit} className="flex gap-3">
+            <form onSubmit={handleCustomSubmit} className="flex flex-col sm:flex-row gap-3">
               <input
                 type="text"
                 value={customRole}
                 onChange={(e) => setCustomRole(e.target.value)}
                 placeholder="e.g., Requesting a deadline extension from a strict client, or practicing a salary negotiation..."
-                className="flex-1 bg-white border-2 border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-violet-500 text-slate-800 placeholder-slate-400 font-medium"
+                className="flex-1 bg-white border-2 border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-violet-500 text-slate-800 placeholder-slate-400 font-medium w-full"
                 disabled={loading}
               />
               <button
                 type="submit"
                 disabled={loading || !customRole.trim()}
-                className="btn-primary bg-violet-500 hover:bg-violet-600 text-white border-2 border-slate-800 shadow-[3px_3px_0px_rgba(30,41,59,1)] disabled:opacity-50 flex-shrink-0 text-xs px-6 py-3 font-bold rounded-xl"
+                className="btn-primary bg-violet-500 hover:bg-violet-600 text-white border-2 border-slate-800 shadow-[3px_3px_0px_rgba(30,41,59,1)] disabled:opacity-50 flex-shrink-0 text-xs px-6 py-3 font-bold rounded-xl w-full sm:w-auto"
               >
                 {loading ? "Initializing..." : "Start Custom Sim"}
               </button>

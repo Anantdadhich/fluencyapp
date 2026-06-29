@@ -37,17 +37,12 @@
 }
 
 body {
-  background-color: var(--bg-color);
+  background-color: #faf8f2; /* Soothing warm solid cream to reduce eye strain */
   color: var(--text-primary);
   font-family: var(--font-sans);
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
-  /* Creamy paper with soft grid pattern */
-  background-image: 
-    linear-gradient(rgba(224, 216, 201, 0.45) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(224, 216, 201, 0.45) 1px, transparent 1px);
-  background-size: 26px 26px;
   position: relative;
 }
 
@@ -195,7 +190,10 @@ input:focus {
 }
 
 .editor-textarea {
-  background: transparent;
+  background-color: transparent;
+  background-image: linear-gradient(rgba(30, 41, 59, 0.05) 1px, transparent 1px);
+  background-size: 100% 1.8em;
+  background-attachment: local;
   color: var(--text-primary);
   border: 2.5px solid var(--panel-border);
   resize: none;
@@ -213,7 +211,10 @@ input:focus {
 .editor-overlay {
   z-index: 1;
   color: transparent; /* Text is invisible, only highlights show */
-  background: var(--panel-bg);
+  background-color: var(--panel-bg);
+  background-image: linear-gradient(rgba(30, 41, 59, 0.05) 1px, transparent 1px);
+  background-size: 100% 1.8em;
+  background-attachment: local;
   border: 2.5px solid transparent;
 }
 

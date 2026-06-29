@@ -103,41 +103,48 @@ export function AudioInput({ onTranscript, onAudioBlob, isProcessing }: AudioInp
   };
 
   return (
-    <div className="w-full space-y-3">
-      {isRecording && (
-        <div className="animate-fade-in">
-          <AudioVisualizer isRecording={isRecording} theme="rose" stream={visualizerStream} />
-        </div>
-      )}
-      
+    <div className="w-full">
       <button
         onClick={isRecording ? stopRecording : startRecording}
         disabled={isProcessing}
         className={`
-          w-full py-4 rounded-xl flex items-center justify-center gap-3 text-lg font-bold transition-all border-2 border-slate-800
+          w-full py-4 rounded-xl flex items-center justify-center gap-3 text-lg font-bold transition-all border-2 border-slate-800 relative overflow-hidden
           ${
             isRecording 
-              ? "bg-red-50 text-red-700 shadow-[2px_2px_0px_rgba(220,38,38,1)] animate-pulse" 
-              : "bg-white text-slate-800 shadow-[3px_3px_0px_rgba(30,41,59,1)] hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[4.5px_4.5px_0px_rgba(30,41,59,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_rgba(30,41,59,1)]"
+              ? "bg-red-50 text-slate-850 shadow-[2px_2px_0px_rgba(30,41,59,1)]" 
+              : "bg-white text-slate-800 shadow-[3px_3px_0px_rgba(30,41,59,1)] hover:-translate-y-[1px] hover:shadow-[4.5px_4.5px_0px_rgba(30,41,59,1)] active:translate-y-[1px] active:shadow-[1px_1px_0px_rgba(30,41,59,1)]"
           }
         `}
       >
-        {isProcessing ? (
-          <>
-            <Loader2 className="w-6 h-6 animate-spin" />
-            Processing Audio...
-          </>
-        ) : isRecording ? (
-          <>
-            <Square className="w-6 h-6 fill-current text-red-650" />
-            Stop Recording
-          </>
-        ) : (
-          <>
-            <Mic className="w-6 h-6 text-slate-800" />
-            Tap to Speak
-          </>
+        {isRecording && (
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-30">
+            <AudioVisualizer 
+              isRecording={isRecording} 
+              theme="rose" 
+              stream={visualizerStream} 
+              className="w-full h-full"
+            />
+          </div>
         )}
+
+        <span className="relative z-10 flex items-center justify-center gap-3 w-full">
+          {isProcessing ? (
+            <>
+              <Loader2 className="w-6 h-6 animate-spin text-slate-800" />
+              Processing Audio...
+            </>
+          ) : isRecording ? (
+            <>
+              <Square className="w-5 h-5 fill-red-600 text-red-650 animate-pulse" />
+              Listening... Tap to Stop
+            </>
+          ) : (
+            <>
+              <Mic className="w-6 h-6 text-slate-800" />
+              Tap to Speak
+            </>
+          )}
+        </span>
       </button>
     </div>
   );

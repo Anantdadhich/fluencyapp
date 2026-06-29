@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { Type, Schema } from "@google/genai";
-import { generateGeminiContent } from "@/lib/gemini";
+import { generateGeminiContent, cleanJsonString } from "@/lib/gemini";
 
 // Ensure Node.js runtime as `@google/genai` handles network requests
 export const runtime = "nodejs";
@@ -85,10 +85,31 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized: Missing API Key" }, { status: 401 });
     }
 
-    const { text, audio } = await request.json();
+    const { text, audio, mimeType } = await request.json();
 
     if (!text && !audio) {
       return NextResponse.json({ error: "No input provided" }, { status: 400 });
+    }
+
+    let transcribedText = text || "";
+    if (audio) {
+      try {
+        const transcript = await generateGeminiContent({
+          apiKey,
+          prompt: "Transcribe this spoken audio exactly, word-for-word. Output only the transcript text. Do not add any prefix, suffix, or headers.",
+          audio: {
+            data: audio,
+            mimeType: mimeType || "audio/webm"
+          }
+        });
+        const cleanTranscript = transcript.trim();
+        transcribedText = text 
+          ? `${text.trim()} ${cleanTranscript}` 
+          : cleanTranscript;
+      } catch (err: any) {
+        console.error("Audio transcription error:", err);
+        // Fall back to text if transcription fails
+      }
     }
 
     // Handle god prompt
@@ -98,7 +119,7 @@ Analyze the following user input deeply. Provide comprehensive structural feedba
 
 Input Text:
 """
-${text}
+${transcribedText}
 """
 
 Instructions:
@@ -119,9 +140,11 @@ Output strictly valid JSON matching the requested schema.
     });
     if (!outputText) {
        throw new Error("No output generated");
-    }
+     }
 
-    const result = JSON.parse(outputText);
+    const cleanedJson = cleanJsonString(outputText);
+    const result = JSON.parse(cleanedJson);
+    result.transcribedText = transcribedText;
     return NextResponse.json(result);
 
   } catch (error: any) {

@@ -48,10 +48,10 @@ export function OnboardingGate({ onSuccess }: OnboardingGateProps) {
           <div className="mx-auto bg-slate-100 border-2 border-slate-800 w-16 h-16 rounded-full flex items-center justify-center mb-4">
             <KeyRound className="w-8 h-8 text-[var(--accent-primary)]" />
           </div>
-          <h1 className="text-3xl font-display mb-2 text-[var(--text-primary)]">BYOK Gate</h1>
+          <h1 className="text-3xl font-display mb-2 text-[var(--text-primary)]">Connect FluentScribe</h1>
           <p className="text-[var(--text-secondary)]">
-            Enter your personal Gemini API key to access the Action-Driven Fluency Engine. 
-            Your key is securely stored in an HttpOnly cookie.
+            Enter your Gemini API key to activate your FluentScribe calligraphy speech workspace. 
+            Your key is stored securely in your private session cookies.
           </p>
         </div>
 
@@ -84,7 +84,7 @@ export function OnboardingGate({ onSuccess }: OnboardingGateProps) {
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <>
-                Unlock Engine <ArrowRight className="w-4 h-4" />
+                Activate Engine <ArrowRight className="w-4 h-4" />
               </>
             )}
           </button>

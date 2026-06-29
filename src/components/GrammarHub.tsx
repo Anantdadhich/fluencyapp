@@ -18,6 +18,22 @@ export function GrammarHub({ onComplete, initialTopicId }: GrammarHubProps) {
   const [error, setError] = useState("");
   const [data, setData] = useState<GrammarPracticeResponse | null>(null);
 
+  const [completedTopics, setCompletedTopics] = useState<string[]>([]);
+
+  // Load completed topics on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("completed_grammar_topics");
+      if (saved) {
+        try {
+          setCompletedTopics(JSON.parse(saved));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  }, []);
+
   // Auto-launch preset topic when directed from learning path
   useEffect(() => {
     if (initialTopicId && step === "select") {
@@ -106,6 +122,11 @@ export function GrammarHub({ onComplete, initialTopicId }: GrammarHubProps) {
       setTextInput("");
     } else {
       setStep("result");
+      if (selectedTopic && !completedTopics.includes(selectedTopic)) {
+        const nextCompleted = [...completedTopics, selectedTopic];
+        setCompletedTopics(nextCompleted);
+        localStorage.setItem("completed_grammar_topics", JSON.stringify(nextCompleted));
+      }
     }
   };
 
@@ -145,8 +166,15 @@ export function GrammarHub({ onComplete, initialTopicId }: GrammarHubProps) {
                 disabled={loading}
                 className="text-left p-5 rounded-2xl border-2 border-slate-800 bg-[#fffdfa] hover:border-rose-500 hover:shadow-[3px_3px_0px_#f43f5e] transition-all text-slate-800 flex flex-col justify-between h-40 disabled:opacity-50 group hover:-translate-y-0.5"
               >
-                <div>
-                  <div className="font-bold text-slate-800 mb-1 group-hover:text-rose-600 transition-colors">{t.label}</div>
+                <div className="w-full">
+                  <div className="flex items-center justify-between mb-1 gap-2">
+                    <span className="font-bold text-slate-800 group-hover:text-rose-600 transition-colors">{t.label}</span>
+                    {completedTopics.includes(t.id) && (
+                      <span className="text-[10px] text-emerald-650 font-bold px-2 py-0.5 bg-emerald-50 border border-emerald-300 rounded shadow-[1px_1px_0px_rgba(16,185,129,0.1)] flex items-center gap-1 shrink-0 animate-fade-in">
+                        <Check className="w-3 h-3 text-emerald-650" /> Completed
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">{t.desc}</p>
                 </div>
                 {loading && selectedTopic === t.id ? (

@@ -298,10 +298,10 @@ export function FluencyTrainer({ onComplete }: FluencyTrainerProps) {
     const strokeDashoffset = strokeDasharray - (percentage / 100) * strokeDasharray;
 
     return (
-      <div className="flex flex-col items-center gap-2 bg-black/30 p-4 rounded-xl border border-white/5 w-28">
+      <div className="flex flex-col items-center gap-2 bg-white p-4 rounded-xl border-2 border-slate-800 w-full md:w-28 h-28 justify-center shadow-[2px_2px_0px_#1e293b]">
         <div className="relative w-14 h-14">
           <svg className="w-full h-full transform -rotate-90">
-            <circle cx="28" cy="28" r={radius} className="stroke-white/5 fill-transparent" strokeWidth="5" />
+            <circle cx="28" cy="28" r={radius} className="stroke-slate-100 fill-transparent" strokeWidth="5" />
             <circle 
               cx="28" 
               cy="28" 
@@ -313,11 +313,11 @@ export function FluencyTrainer({ onComplete }: FluencyTrainerProps) {
               strokeLinecap="round"
             />
           </svg>
-          <div className="absolute inset-0 flex items-center justify-center font-mono font-bold text-xs text-white">
+          <div className="absolute inset-0 flex items-center justify-center font-mono font-bold text-xs text-slate-800">
             {score}/10
           </div>
         </div>
-        <span className="text-[10px] text-[var(--text-secondary)] font-semibold uppercase tracking-wider text-center">{label}</span>
+        <span className="text-[10px] text-[var(--text-secondary)] font-bold uppercase tracking-wider text-center">{label}</span>
       </div>
     );
   };
@@ -705,13 +705,13 @@ export function FluencyTrainer({ onComplete }: FluencyTrainerProps) {
           </div>
 
           {/* Rating score panels */}
-          <div className="grid grid-cols-4 gap-4 items-center justify-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 items-center justify-center">
             <RadialProgress score={evaluation.clarityScore} label="Clarity" colorClass="text-sky-500" />
             <RadialProgress score={evaluation.rhythmScore} label="Rhythm" colorClass="text-emerald-500" />
             <RadialProgress score={evaluation.expressionScore} label="Tonality" colorClass="text-purple-500" />
             
             {/* Accuracy card */}
-            <div className="flex flex-col items-center gap-2 bg-slate-50 p-4 rounded-xl border-2 border-slate-800 w-28 h-28 justify-center shadow-[2px_2px_0px_rgba(30,41,59,1)]">
+            <div className="flex flex-col items-center gap-2 bg-white p-4 rounded-xl border-2 border-slate-800 w-full md:w-28 h-28 justify-center shadow-[2px_2px_0px_rgba(30,41,59,1)]">
               <div className="text-2xl font-bold font-mono text-emerald-600">{accuracyPercentage}%</div>
               <span className="text-[10px] text-[var(--text-secondary)] font-bold uppercase tracking-wider text-center">Word Match</span>
             </div>
@@ -830,7 +830,7 @@ export function FluencyTrainer({ onComplete }: FluencyTrainerProps) {
           </div>
 
           <div className="max-w-md mx-auto bg-slate-50 border-2 border-slate-800 p-4 rounded-xl shadow-[3px_3px_0px_#1e293b] text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
-            <span className="text-emerald-600 font-bold block mb-1 text-sm">Fluency Habit Unlocked! 🗣️</span>
+            <span className="text-emerald-600 font-bold block mb-1 text-sm">Fluency Habit Solidified! 🗣️</span>
             Excellent job practicing oral speech flow. Consistent training on scrolling texts builds high-speed word grouping and proper breathing intervals.
           </div>
 

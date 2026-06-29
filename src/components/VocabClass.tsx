@@ -18,6 +18,22 @@ export function VocabClass({ onComplete, initialThemeId }: VocabClassProps) {
   const [error, setError] = useState("");
   const [data, setData] = useState<VocabPracticeResponse | null>(null);
 
+  const [completedThemes, setCompletedThemes] = useState<string[]>([]);
+
+  // Load completed themes on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("completed_vocab_themes");
+      if (saved) {
+        try {
+          setCompletedThemes(JSON.parse(saved));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  }, []);
+
   // Auto-launch preset theme when directed from learning path
   useEffect(() => {
     if (initialThemeId && step === "select") {
@@ -61,10 +77,17 @@ export function VocabClass({ onComplete, initialThemeId }: VocabClassProps) {
       if (!res.ok) throw new Error(json.error || "Failed to fetch vocabulary class");
 
       setData(json);
-      setWordIdx(0);
       setStep("classroom");
+      setWordIdx(0);
+      setSelectedOption(null);
+      setQuizSubmitted(false);
+      setSandboxText("");
+      setEvalResult(null);
     } catch (err: any) {
-      setError(err.message);
+      const msg = err.message === "Failed to fetch"
+        ? "Network connection error: Unable to connect to the server. Please make sure the server is running."
+        : err.message;
+      setError(msg);
       console.error(err);
     } finally {
       setLoading(false);
@@ -156,6 +179,11 @@ export function VocabClass({ onComplete, initialThemeId }: VocabClassProps) {
       setStep("classroom");
     } else {
       setStep("result");
+      if (selectedTheme && !completedThemes.includes(selectedTheme)) {
+        const nextCompleted = [...completedThemes, selectedTheme];
+        setCompletedThemes(nextCompleted);
+        localStorage.setItem("completed_vocab_themes", JSON.stringify(nextCompleted));
+      }
     }
   };
 
@@ -203,8 +231,15 @@ export function VocabClass({ onComplete, initialThemeId }: VocabClassProps) {
                 disabled={loading}
                 className="text-left p-5 rounded-2xl border-2 border-slate-800 bg-[#fffdfa] hover:border-sky-500 hover:shadow-[3px_3px_0px_#0ea5e9] transition-all text-slate-800 flex flex-col justify-between h-40 disabled:opacity-50 group hover:-translate-y-0.5"
               >
-                <div>
-                  <div className="font-bold text-slate-800 mb-1 group-hover:text-sky-600 transition-colors">{t.label}</div>
+                <div className="w-full">
+                  <div className="flex items-center justify-between mb-1 gap-2">
+                    <span className="font-bold text-slate-800 group-hover:text-sky-600 transition-colors">{t.label}</span>
+                    {completedThemes.includes(t.id) && (
+                      <span className="text-[10px] text-emerald-650 font-bold px-2 py-0.5 bg-emerald-50 border border-emerald-300 rounded shadow-[1px_1px_0px_rgba(16,185,129,0.1)] flex items-center gap-1 shrink-0 animate-fade-in">
+                        <Check className="w-3 h-3 text-emerald-650" /> Completed
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">{t.desc}</p>
                 </div>
                 {loading && selectedTheme === t.id ? (
@@ -488,7 +523,7 @@ export function VocabClass({ onComplete, initialThemeId }: VocabClassProps) {
           </div>
 
           <div className="max-w-md mx-auto bg-slate-50 border-2 border-slate-800 p-4 rounded-xl shadow-[3px_3px_0px_#1e293b] text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
-            <span className="text-emerald-600 font-bold block mb-1 text-sm">Advanced Vocab Unlocked! 🚀</span>
+            <span className="text-emerald-600 font-bold block mb-1 text-sm">Vocabulary Knowledge Expanded! 🚀</span>
             You learned {data.words.length} key communication terms, analyzed native situations, and verified your syntax suitability in real-time.
           </div>
 

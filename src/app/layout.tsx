@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Advanced Fluency Engine | Notebook Edition",
-  description: "An advanced learning ecosystem for mastering English fluency, grammar, vocabulary, and conversational skills, styled as a literature calligraphy notebook.",
+  title: "FluentScribe | Calligraphy Speaking & Writing Coach",
+  description: "FluentScribe is a premium calligraphy-styled speech and writing companion. Master English grammar, vocabulary, teleprompter pacing, and conversational simulator challenges.",
 };
 
 export default function RootLayout({

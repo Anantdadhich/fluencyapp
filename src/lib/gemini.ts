@@ -4,17 +4,20 @@ interface GenerateContentOptions {
   apiKey: string;
   prompt: string;
   responseSchema?: Schema;
+  audio?: {
+    data: string;
+    mimeType: string;
+  };
 }
 
 // Fallback order of models to maximize speed and guarantee availability
 const MODELS_FALLBACK_ORDER = [
-  "gemini-2.5-flash-lite",       // Primary: Extremely low latency, highest availability
-  "gemini-2.0-flash-lite",       // Secondary fallback: Very fast and stable
-  "gemini-2.5-flash",            // Tertiary fallback: Standard flash
-  "gemini-3.1-flash-lite"        // Quaternary fallback: Next-gen fast lite
+  "gemini-2.5-flash",            // Primary: Fast, high intelligence, low latency
+  "gemini-2.5-flash-lite",       // Secondary fallback: Extremely low latency, lightweight
+  "gemini-1.5-flash"             // Tertiary fallback: Legacy stable flash
 ];
 
-export async function generateGeminiContent({ apiKey, prompt, responseSchema }: GenerateContentOptions): Promise<string> {
+export async function generateGeminiContent({ apiKey, prompt, responseSchema, audio }: GenerateContentOptions): Promise<string> {
   const ai = new GoogleGenAI({ apiKey });
   let lastError: any = null;
 
@@ -28,9 +31,14 @@ export async function generateGeminiContent({ apiKey, prompt, responseSchema }: 
           console.log(`[Gemini API] Requesting ${model} (attempt ${attempt}/${maxRetries})`);
         }
         
+        const contents = audio ? [
+          { inlineData: audio },
+          prompt
+        ] : prompt;
+
         const response = await ai.models.generateContent({
           model,
-          contents: prompt,
+          contents,
           config: {
             responseMimeType: responseSchema ? "application/json" : "text/plain",
             responseSchema,
@@ -69,4 +77,12 @@ export async function generateGeminiContent({ apiKey, prompt, responseSchema }: 
   }
 
   throw new Error(`All Gemini models failed. Last error: ${lastError?.message || lastError}`);
+}
+
+export function cleanJsonString(input: string): string {
+  let cleaned = input.trim();
+  if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```json\s*/i, "").replace(/```$/, "").trim();
+  }
+  return cleaned;
 }

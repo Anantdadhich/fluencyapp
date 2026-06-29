@@ -6,9 +6,10 @@ interface AudioVisualizerProps {
   isRecording: boolean;
   theme: "rose" | "sky" | "orange" | "violet" | "pink";
   stream?: MediaStream | null;
+  className?: string;
 }
 
-export function AudioVisualizer({ isRecording, theme, stream }: AudioVisualizerProps) {
+export function AudioVisualizer({ isRecording, theme, stream, className }: AudioVisualizerProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -116,7 +117,7 @@ export function AudioVisualizer({ isRecording, theme, stream }: AudioVisualizerP
       const height = canvas.height;
 
       // Clear with soft transparency to create motion trail blur
-      ctx.fillStyle = "rgba(255, 253, 250, 0.15)"; 
+      ctx.fillStyle = "rgba(255, 253, 250, 0.15)";
       ctx.fillRect(0, 0, width, height);
 
       // Grid background line representing ruled paper
@@ -143,10 +144,10 @@ export function AudioVisualizer({ isRecording, theme, stream }: AudioVisualizerP
       let freqData: number[] = [];
 
       if (analyserRef.current && dataArrayRef.current) {
-        analyserRef.current.getByteFrequencyData(dataArrayRef.current);
+        analyserRef.current.getByteFrequencyData(dataArrayRef.current as any);
         const sum = dataArrayRef.current.reduce((a, b) => a + b, 0);
         voiceVolume = sum / dataArrayRef.current.length / 255; // 0 to 1 scale
-        
+
         // Populate freqData for bouncing bar graphs
         for (let i = 0; i < dataArrayRef.current.length; i++) {
           freqData.push(dataArrayRef.current[i] / 255);
@@ -155,7 +156,7 @@ export function AudioVisualizer({ isRecording, theme, stream }: AudioVisualizerP
         // Fallback simulation: simulate voice modulation using complex sine cycles
         voiceVolume = 0.2 + 0.3 * Math.sin(phase * 0.05) * Math.cos(phase * 0.08 + 1);
         if (voiceVolume < 0.1) voiceVolume = 0.1; // minimum voice animation bump
-        
+
         // Generate simulated frequency peaks
         for (let i = 0; i < colors.barCount; i++) {
           const mult = Math.sin(phase * 0.1 + i * 0.3) * Math.cos(phase * 0.05 - i * 0.1);
@@ -170,13 +171,13 @@ export function AudioVisualizer({ isRecording, theme, stream }: AudioVisualizerP
       for (let w = 0; w < waveCount; w++) {
         ctx.beginPath();
         ctx.lineWidth = w === 0 ? 3.5 : 1.5;
-        
+
         // Fade layers
-        ctx.strokeStyle = w === 0 
-          ? colors.primary 
-          : w === 1 
-          ? `${colors.secondary}bb` 
-          : `${colors.accent}66`;
+        ctx.strokeStyle = w === 0
+          ? colors.primary
+          : w === 1
+            ? `${colors.secondary}bb`
+            : `${colors.accent}66`;
 
         const ampFactor = 25 * voiceVolume * (1 - w * 0.25);
         const freqFactor = 0.015 + w * 0.005;
@@ -184,7 +185,7 @@ export function AudioVisualizer({ isRecording, theme, stream }: AudioVisualizerP
         for (let x = 0; x < width; x++) {
           // Sine curve offset from center axis
           const y = height / 2 + Math.sin(x * freqFactor + phase * 0.12 + w * Math.PI / 3) * ampFactor;
-          
+
           if (x === 0) {
             ctx.moveTo(x, y);
           } else {
@@ -204,7 +205,7 @@ export function AudioVisualizer({ isRecording, theme, stream }: AudioVisualizerP
       for (let i = 0; i < colors.barCount; i++) {
         const value = freqData[i % freqData.length] || 0.1;
         const rawBarHeight = Math.max(3, value * (height - 20));
-        
+
         // Draw centered bar
         const x = startX + i * (barWidth + spacing);
         const y = (height - rawBarHeight) / 2;
@@ -215,7 +216,11 @@ export function AudioVisualizer({ isRecording, theme, stream }: AudioVisualizerP
 
         // Custom rounded or flat rectangles with shadows
         ctx.beginPath();
-        ctx.roundRect(x, y, barWidth, rawBarHeight, 2);
+        if (typeof (ctx as any).roundRect === "function") {
+          (ctx as any).roundRect(x, y, barWidth, rawBarHeight, 2);
+        } else {
+          ctx.rect(x, y, barWidth, rawBarHeight);
+        }
         ctx.fill();
         ctx.stroke();
       }
@@ -244,7 +249,7 @@ export function AudioVisualizer({ isRecording, theme, stream }: AudioVisualizerP
   }, [isRecording, colors, theme]);
 
   return (
-    <div className="w-full h-16 border-2 border-slate-800 rounded-xl bg-[#fffdfa] relative overflow-hidden shadow-[inset_1px_1px_4px_rgba(0,0,0,0.05),2px_2px_0px_rgba(30,41,59,1)]">
+    <div className={className || "w-full h-16 border-2 border-slate-800 rounded-xl bg-[#fffdfa] relative overflow-hidden shadow-[inset_1px_1px_4px_rgba(0,0,0,0.05),2px_2px_0px_rgba(30,41,59,1)]"}>
       <canvas
         ref={canvasRef}
         className="w-full h-full block"

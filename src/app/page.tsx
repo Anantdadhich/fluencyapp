@@ -11,7 +11,7 @@ import { RoleplaySimulator } from "@/components/RoleplaySimulator";
 import { ConfidenceStudio } from "@/components/ConfidenceStudio";
 import { LearningPath } from "@/components/LearningPath";
 import { AnalysisResponse } from "@/lib/types";
-import { Flame, Award, Shield, ArrowLeft, Trophy, Star, Sparkles, CheckCircle2 } from "lucide-react";
+import { Flame, Award, Shield, ArrowLeft, Trophy, Star, Sparkles, CheckCircle2, Menu, X } from "lucide-react";
 
 type ActiveView = "learning_path" | "workspace" | "basic_learning" | "vocab_practice" | "roleplay" | "fluency_trainer" | "confidence_studio";
 
@@ -21,6 +21,7 @@ export default function Home() {
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState("");
   const [activeView, setActiveView] = useState<ActiveView>("learning_path");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Learning pathway states
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
@@ -202,15 +203,30 @@ export default function Home() {
     }
   };
 
-  const handleAnalyze = async (text: string, audioBlob?: Blob) => {
+  const handleAnalyze = async (text: string, audioBlob?: Blob): Promise<any> => {
     setIsProcessing(true);
     setError("");
     
     try {
+      let base64Audio = "";
+      let audioMimeType = "";
+      if (audioBlob) {
+        audioMimeType = audioBlob.type;
+        base64Audio = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(audioBlob);
+          reader.onloadend = () => {
+            const result = reader.result as string;
+            resolve(result.split(",")[1]);
+          };
+          reader.onerror = reject;
+        });
+      }
+
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, audio: base64Audio, mimeType: audioMimeType }),
       });
 
       const data = await res.json();
@@ -224,9 +240,11 @@ export default function Home() {
       if (activePathStep === "diagnostic") {
         handleSessionComplete();
       }
+      return data;
     } catch (err: any) {
       setError(err.message);
       console.error(err);
+      throw err;
     } finally {
       setIsProcessing(false);
     }
@@ -248,31 +266,28 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[var(--bg-color)] flex flex-col relative z-10">
       
-      {/* 1. HEADER: Exit or General path indicators */}
-      <header className="main-header w-full min-h-[4rem] py-3 md:py-0 md:h-16 flex flex-col md:flex-row items-center justify-between px-4 md:px-6 gap-3 md:gap-8 bg-white border-b-3 border-slate-800 shadow-[0px_3px_0px_rgba(30,41,59,1)]">
-        <div className="flex flex-col md:flex-row items-center gap-3 md:gap-8 w-full md:w-auto">
-          <div className="flex items-center justify-between w-full md:w-auto gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center text-white font-bold text-sm border-2 border-slate-900 shadow-[2px_2px_0px_#1e293b]">
-                A
-              </div>
-              <h1 className="text-lg font-display font-bold text-[var(--text-primary)]">Calligraphy Fluency App</h1>
+      {/* 1. HEADER: Rebranded navigation header with hamburger dropdown for mobile */}
+      <header className="main-header w-full bg-white border-b-3 border-slate-800 shadow-[0px_3px_0px_rgba(30,41,59,1)] flex flex-col relative z-50">
+        <div className="flex items-center justify-between px-4 md:px-6 h-16 w-full gap-4">
+          
+          {/* Logo / Brand Name Button */}
+          <button 
+            onClick={() => {
+              setActiveView("learning_path");
+              setActivePathStep(null);
+              setMobileMenuOpen(false);
+            }}
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity text-left shrink-0"
+            title="Go to Home Path"
+          >
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center text-white font-bold text-sm border-2 border-slate-900 shadow-[2px_2px_0px_#1e293b]">
+              A
             </div>
+            <h1 className="text-lg font-display font-bold text-[var(--text-primary)]">FluentScribe</h1>
+          </button>
 
-            {activeView !== "learning_path" && activePathStep && (
-              <button
-                onClick={() => {
-                  setActiveView("learning_path");
-                  setActivePathStep(null);
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#fdfcf7] border-2 border-slate-800 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 shadow-[2px_2px_0px_#1e293b] active:translate-y-[2px] active:shadow-[0px_0px_0px_#1e293b] md:hidden"
-              >
-                <ArrowLeft className="w-4 h-4" /> Exit
-              </button>
-            )}
-          </div>
-
-          <nav className="flex h-12 md:h-16 items-center overflow-x-auto whitespace-nowrap scrollbar-none w-full md:w-auto max-w-full md:max-w-none gap-1 border-t border-slate-200/60 mt-1 pt-1 md:border-t-0 md:mt-0 md:pt-0">
+          {/* Desktop Navigation Tabs - centered, hidden on mobile */}
+          <nav className="hidden md:flex h-full items-center gap-1">
             <button
               onClick={() => {
                 setActiveView("learning_path");
@@ -332,31 +347,152 @@ export default function Home() {
                 setActiveView("confidence_studio");
                 setActivePathStep(null);
               }}
-              className={`nav-tab h-full flex items-center gap-1.5 font-medium ${activeView === "confidence_studio" ? "active text-pink-600 font-semibold" : "text-pink-700/80 hover:text-pink-700"}`}
+              className={`nav-tab h-full flex items-center gap-1.5 font-medium ${activeView === "confidence_studio" ? "active text-pink-650 font-semibold" : "text-pink-700 hover:text-pink-800"}`}
             >
               <Shield className="w-4 h-4" /> Confidence
             </button>
           </nav>
+
+          {/* Right side: Streak and controls (desktop inline, mobile icons + hamburger toggle) */}
+          <div className="flex items-center gap-2 md:gap-4 text-xs font-mono text-[var(--text-secondary)]">
+            
+            {/* Streak & Drills indicator */}
+            <div className="flex items-center gap-2 md:gap-2.5">
+              <div className="flex items-center gap-1" title="Daily Streak">
+                <Flame className="w-4 h-4 text-orange-500 animate-pulse" />
+                <span><strong className="text-[var(--text-primary)]">{stats.streak}d</strong></span>
+              </div>
+              <div className="hidden sm:flex items-center gap-1" title="Completed Exercises">
+                <Award className="w-4 h-4 text-yellow-500" />
+                <span><strong className="text-[var(--text-primary)]">{stats.completedSessions}</strong></span>
+              </div>
+            </div>
+
+            <button 
+              onClick={handleResetKey}
+              className="hidden md:block text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors font-medium border-l border-slate-300 pl-3"
+            >
+              Reset Key
+            </button>
+
+            {/* Exit Button - hidden if on map */}
+            {activeView !== "learning_path" && activePathStep && (
+              <button
+                onClick={() => {
+                  setActiveView("learning_path");
+                  setActivePathStep(null);
+                }}
+                className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-[#fdfcf7] border-2 border-slate-800 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 shadow-[2px_2px_0px_#1e293b] active:translate-y-[2px] active:shadow-none"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" /> Exit
+              </button>
+            )}
+
+            {/* Mobile Hamburger Toggle Button - hidden on desktop */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-xl border-2 border-slate-800 bg-[#fdfcf7] hover:bg-slate-100 shadow-[2px_2px_0px_rgba(30,41,59,1)] active:translate-y-[1px] active:shadow-none transition-all flex items-center justify-center"
+              aria-label="Toggle Navigation Menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5 text-slate-800" /> : <Menu className="w-5 h-5 text-slate-800" />}
+            </button>
+          </div>
         </div>
 
-        {/* Info indicators */}
-        <div className="flex items-center gap-4 text-xs font-mono text-[var(--text-secondary)]">
-          <div className="flex items-center gap-1.5" title="Daily Streak">
-            <Flame className="w-4 h-4 text-orange-500 animate-pulse" />
-            <span>Streak: <strong className="text-[var(--text-primary)]">{stats.streak}d</strong></span>
+        {/* Mobile Navigation Drawer - Slide-down neobrutalist panel */}
+        {mobileMenuOpen && (
+          <div className="md:hidden w-full border-t-2 border-slate-800 bg-white shadow-[0px_4px_10px_rgba(0,0,0,0.05)] absolute top-[100%] left-0 right-0 z-40 animate-fade-in p-4 space-y-4">
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider px-2">Navigation Milestones</span>
+              <button
+                onClick={() => {
+                  setActiveView("learning_path");
+                  setActivePathStep(null);
+                  setMobileMenuOpen(false);
+                }}
+                className={`w-full text-left p-3 rounded-xl border-2 font-bold transition-all ${activeView === "learning_path" ? "bg-sky-50 border-sky-500 text-sky-700 shadow-[2px_2px_0px_rgba(14,165,233,0.3)]" : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"}`}
+              >
+                🗺️ Pathway Map
+              </button>
+              <button
+                onClick={() => {
+                  setActiveView("workspace");
+                  setActivePathStep(null);
+                  setMobileMenuOpen(false);
+                }}
+                className={`w-full text-left p-3 rounded-xl border-2 font-bold transition-all ${activeView === "workspace" ? "bg-sky-50 border-sky-500 text-sky-700 shadow-[2px_2px_0px_rgba(14,165,233,0.3)]" : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"}`}
+              >
+                📝 Workspace Editor
+              </button>
+              <button
+                onClick={() => {
+                  setActiveView("basic_learning");
+                  setActivePathStep(null);
+                  setMobileMenuOpen(false);
+                }}
+                className={`w-full text-left p-3 rounded-xl border-2 font-bold transition-all ${activeView === "basic_learning" ? "bg-sky-50 border-sky-500 text-sky-700 shadow-[2px_2px_0px_rgba(14,165,233,0.3)]" : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"}`}
+              >
+                📖 Grammar Hub
+              </button>
+              <button
+                onClick={() => {
+                  setActiveView("vocab_practice");
+                  setActivePathStep(null);
+                  setMobileMenuOpen(false);
+                }}
+                className={`w-full text-left p-3 rounded-xl border-2 font-bold transition-all ${activeView === "vocab_practice" ? "bg-sky-50 border-sky-500 text-sky-700 shadow-[2px_2px_0px_rgba(14,165,233,0.3)]" : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"}`}
+              >
+                ⚡ Vocab Class
+              </button>
+              <button
+                onClick={() => {
+                  setActiveView("roleplay");
+                  setActivePathStep(null);
+                  setMobileMenuOpen(false);
+                }}
+                className={`w-full text-left p-3 rounded-xl border-2 font-bold transition-all ${activeView === "roleplay" ? "bg-sky-50 border-sky-500 text-sky-700 shadow-[2px_2px_0px_rgba(14,165,233,0.3)]" : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"}`}
+              >
+                💬 Roleplay Simulator
+              </button>
+              <button
+                onClick={() => {
+                  setActiveView("fluency_trainer");
+                  setActivePathStep(null);
+                  setMobileMenuOpen(false);
+                }}
+                className={`w-full text-left p-3 rounded-xl border-2 font-bold transition-all ${activeView === "fluency_trainer" ? "bg-sky-50 border-sky-500 text-sky-700 shadow-[2px_2px_0px_rgba(14,165,233,0.3)]" : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"}`}
+              >
+                🗣️ Teleprompter Drill
+              </button>
+              <button
+                onClick={() => {
+                  setActiveView("confidence_studio");
+                  setActivePathStep(null);
+                  setMobileMenuOpen(false);
+                }}
+                className={`w-full text-left p-3 rounded-xl border-2 font-bold transition-all flex items-center gap-2 ${activeView === "confidence_studio" ? "bg-pink-50 border-pink-500 text-pink-700 shadow-[2px_2px_0px_rgba(236,72,153,0.3)]" : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"}`}
+              >
+                🛡️ Confidence Studio
+              </button>
+            </div>
+
+            <div className="border-t border-slate-200 pt-3 flex items-center justify-between text-xs px-2 text-slate-500 font-mono">
+              <div className="flex items-center gap-1">
+                <Award className="w-4 h-4 text-yellow-500" />
+                <span>Drills Completed: <strong>{stats.completedSessions}</strong></span>
+              </div>
+              <button 
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleResetKey();
+                }}
+                className="text-red-500 font-bold hover:underline"
+              >
+                Reset API Key
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5" title="Completed Exercises">
-            <Award className="w-4 h-4 text-yellow-500" />
-            <span>Drills: <strong className="text-[var(--text-primary)]">{stats.completedSessions}</strong></span>
-          </div>
-          <div className="h-4 w-[1px] bg-slate-300" />
-          <button 
-            onClick={handleResetKey}
-            className="text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors font-medium"
-          >
-            Reset API Key
-          </button>
-        </div>
+        )}
       </header>
 
       {/* 2. CORE SCREEN VIEWS */}
@@ -369,8 +505,8 @@ export default function Home() {
             onQuickLaunch={handleQuickLaunch}
           />
         ) : activeView === "workspace" ? (
-          <main className="app-container-workspace p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-4rem)]">
-            <div className="flex flex-col gap-4 overflow-y-auto">
+          <main className="app-container-workspace p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 h-auto min-h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)]">
+            <div className="flex flex-col gap-4 lg:overflow-y-auto">
               <UnifiedTextWorkspace 
                 onAnalyze={handleAnalyze}
                 isProcessing={isProcessing}
@@ -378,26 +514,26 @@ export default function Home() {
                 vocabularyUpgrades={analysis?.vocabularyUpgrades || []}
               />
             </div>
-            <div className="overflow-y-auto">
+            <div className="lg:overflow-y-auto">
               <LearningDashboard analysis={analysis} />
             </div>
           </main>
         ) : activeView === "basic_learning" ? (
-          <div className="py-6">
+          <div className="py-6 px-4 md:px-6 max-w-5xl mx-auto">
             <GrammarHub 
               onComplete={handleSessionComplete} 
               initialTopicId={activePathStep === "grammar" ? "tenses" : null}
             />
           </div>
         ) : activeView === "vocab_practice" ? (
-          <div className="py-6">
+          <div className="py-6 px-4 md:px-6 max-w-5xl mx-auto">
             <VocabClass 
               onComplete={handleSessionComplete} 
               initialThemeId={activePathStep === "vocab" ? "executive" : null}
             />
           </div>
         ) : activeView === "roleplay" ? (
-          <div className="py-6">
+          <div className="py-6 px-4 md:px-6 max-w-5xl mx-auto">
             <RoleplaySimulator 
               onComplete={handleSessionComplete} 
               initialPersonaId={
@@ -408,11 +544,11 @@ export default function Home() {
             />
           </div>
         ) : activeView === "fluency_trainer" ? (
-          <div className="py-6">
+          <div className="py-6 px-4 md:px-6 max-w-5xl mx-auto">
             <FluencyTrainer onComplete={handleSessionComplete} />
           </div>
         ) : (
-          <div className="py-6 h-full">
+          <div className="py-6 px-4 md:px-6 max-w-5xl mx-auto h-full">
             <ConfidenceStudio />
           </div>
         )}
@@ -435,7 +571,7 @@ export default function Home() {
             <h3 className="text-3xl font-display font-bold text-slate-800 mb-2">Milestone Complete!</h3>
             <p className="text-xs text-emerald-600 font-extrabold uppercase tracking-widest mb-4 flex items-center justify-center gap-1">
               <CheckCircle2 className="w-4 h-4 fill-emerald-100 text-emerald-600" />
-              Next Pathway Node Unlocked
+              Milestone Completed successfully!
             </p>
 
             <div className="bg-[#fcf9f2] border-2 border-slate-800 rounded-2xl p-4 mb-6 shadow-[2.5px_2.5px_0px_#1e293b]">

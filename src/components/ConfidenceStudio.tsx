@@ -218,22 +218,22 @@ export function ConfidenceStudio() {
             Here, we disable harsh red-ink syntax corrections. Build vocal muscle memory, calm nervous breathing, and practice speaking with zero fear of negative evaluation.
           </p>
         </div>
-        <div className="flex bg-slate-50 p-1 rounded-xl border-2 border-slate-800 shadow-[1.5px_1.5px_0px_rgba(30,41,59,1)] shrink-0">
+        <div className="flex flex-col sm:flex-row bg-slate-50 p-1 rounded-xl border-2 border-slate-800 shadow-[1.5px_1.5px_0px_rgba(30,41,59,1)] shrink-0 w-full sm:w-auto">
           <button
             onClick={() => setActivePhase("warmup")}
-            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activePhase === "warmup" ? "bg-pink-500 text-white shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)] border border-slate-900" : "text-slate-600 hover:text-slate-800 hover:bg-slate-100"}`}
+            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 w-full sm:w-auto ${activePhase === "warmup" ? "bg-pink-500 text-white shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)] border border-slate-900" : "text-slate-600 hover:text-slate-800 hover:bg-slate-100"}`}
           >
             <Wind className="w-4 h-4" /> 1. Breath Warmup
           </button>
           <button
             onClick={() => setActivePhase("shadow")}
-            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activePhase === "shadow" ? "bg-pink-500 text-white shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)] border border-slate-900" : "text-slate-600 hover:text-slate-800 hover:bg-slate-100"}`}
+            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 w-full sm:w-auto ${activePhase === "shadow" ? "bg-pink-500 text-white shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)] border border-slate-900" : "text-slate-600 hover:text-slate-800 hover:bg-slate-100"}`}
           >
             <Volume2 className="w-4 h-4" /> 2. Shadow Scaffolding
           </button>
           <button
             onClick={() => setActivePhase("mirror")}
-            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activePhase === "mirror" ? "bg-pink-500 text-white shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)] border border-slate-900" : "text-slate-600 hover:text-slate-800 hover:bg-slate-100"}`}
+            className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 w-full sm:w-auto ${activePhase === "mirror" ? "bg-pink-500 text-white shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)] border border-slate-900" : "text-slate-600 hover:text-slate-800 hover:bg-slate-100"}`}
           >
             <Heart className="w-4 h-4" /> 3. Mirror Zone
           </button>

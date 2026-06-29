@@ -7,9 +7,10 @@ interface PopoverCardProps {
   upgrade: VocabularyUpgrade;
   onClose: () => void;
   position: { top: number; left: number };
+  onApply?: (recommended: string) => void;
 }
 
-export function PopoverCard({ upgrade, onClose, position }: PopoverCardProps) {
+export function PopoverCard({ upgrade, onClose, position, onApply }: PopoverCardProps) {
   return (
     <div 
       className="absolute z-50 bg-[#fef9c3] p-5 w-80 rounded-xl border-2 border-slate-800 shadow-[4px_4px_0px_#1e293b] animate-fade-in font-sans text-slate-800"
@@ -53,6 +54,15 @@ export function PopoverCard({ upgrade, onClose, position }: PopoverCardProps) {
           </div>
         </div>
       </div>
+
+      {onApply && (
+        <button
+          onClick={() => onApply(upgrade.recommendedSynonym)}
+          className="w-full mt-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs py-2.5 px-4 rounded-xl border-2 border-slate-800 shadow-[2px_2px_0px_rgba(30,41,59,1)] font-bold text-center transition-all active:translate-y-0.5 active:shadow-none"
+        >
+          Apply Suggestion
+        </button>
+      )}
     </div>
   );
 }

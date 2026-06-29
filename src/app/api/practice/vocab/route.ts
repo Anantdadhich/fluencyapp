@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { Type, Schema } from "@google/genai";
-import { generateGeminiContent } from "@/lib/gemini";
+import { generateGeminiContent, cleanJsonString } from "@/lib/gemini";
 
 export const runtime = "nodejs";
 
@@ -57,10 +57,10 @@ export async function POST(request: Request) {
     const today = new Date().toDateString();
 
     const prompt = `
-You are an expert English Communications Coach specializing in C1/C2 advanced native speaker nuances.
+You are an expert English Communications Coach specializing in B2/C1 practical professional communications.
 Today's date is: "${today}". Use this date as a seed to ensure the vocabulary words are unique for today and vary daily.
 
-Generate a structured advanced vocabulary class for the theme: "${theme}".
+Generate a structured vocabulary class for the theme: "${theme}".
 
 Available themes:
 - executive: Executive communication, boardrooms, and pitching to management.
@@ -70,7 +70,7 @@ Available themes:
 
 Instructions:
 1. Provide a "themeTitle" and a "themeDescription" for this vocabulary class.
-2. Select exactly 3 highly advanced, C1/C2 or native-level words, idioms, or high-impact professional expressions suitable for this theme. Do not choose simple or common words (like 'analyze', 'lead', or 'agree'). Choose sophisticated words (like 'obviate', 'bifurcate', 'acquiesce', or 'equivocate').
+2. Select exactly 3 high-impact, professional words, idioms, or expressions suitable for this theme. They should be highly practical for daily business interactions, networking, and writing (e.g. 'leverage', 'collaborate', 'mitigate', 'articulate', 'streamline', 'reinforce'). Do not choose extremely obscure or academic words (like 'obviate', 'bifurcate', or 'acquiesce') which are rarely used in real-world speaking. Focus on words that help the user express ideas clearly and professionally.
 3. For each word, explain:
    - Part of speech.
    - Core meaning.
@@ -92,7 +92,8 @@ Output strictly valid JSON matching the requested schema.
        throw new Error("No vocabulary output generated");
     }
 
-    const result = JSON.parse(outputText);
+    const cleanedJson = cleanJsonString(outputText);
+    const result = JSON.parse(cleanedJson);
     return NextResponse.json(result);
 
   } catch (error: any) {

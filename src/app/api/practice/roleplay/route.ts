@@ -65,7 +65,7 @@ ${formattedHistory}
 
 Instructions:
 1. Review the conversation history. Read the user's latest response carefully.
-2. Formulate the character's "nextMessage" response. Speak directly in-character (Arthur, Elena, Marcus, or Sarah). Keep the dialogue natural, conversational, and realistic. Conclude your turn with a follow-up question or transition to keep the conversation going. Keep the message under 60-80 words.
+2. Formulate the character's "nextMessage" response. Speak directly in-character (Arthur, Elena, Marcus, or Sarah). Keep the dialogue natural, conversational, and realistic. Conclude your turn with a follow-up question or transition to keep the conversation going. Ensure the character speaks in clear, accessible, and natural English (B2/C1 level). Avoid overly obscure idioms, complex vocabulary, or extremely long sentences so the user can easily understand the dialogue and respond confidently. Keep the message under 60-80 words.
 3. Conduct a structural evaluation of the user's latest statement:
    - Grade register suitability (1 to 10 score) based on how appropriate their tone, politeness, and level of formality are for the counterpart.
    - List grammatical/spelling/syntax mistakes in "grammarErrors".

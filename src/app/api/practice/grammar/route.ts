@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { Type, Schema } from "@google/genai";
-import { generateGeminiContent } from "@/lib/gemini";
+import { generateGeminiContent, cleanJsonString } from "@/lib/gemini";
 
 export const runtime = "nodejs";
 
@@ -66,10 +66,10 @@ export async function POST(request: Request) {
     const today = new Date().toDateString();
 
     const prompt = `
-You are an expert English Language Professor design lead specializing in high-level pedagogy.
+You are an expert English Language Professor design lead specializing in practical communication pedagogy.
 Today's date is: "${today}". Use this date as a seed to ensure the exercises generated are unique for today and change daily.
 
-Generate a structured learning lesson and an interactive quiz targeting C1/C2 (CEFR) extremely advanced and native-level mastery.
+Generate a structured learning lesson and an interactive quiz targeting B1/B2 (CEFR) intermediate to upper-intermediate level, focusing on practical everyday communication, active vocabulary integration, and professional corporate clarity.
 The topic selected is: "${topic}" (Choose from: tenses, articles, adjectives, adverbs, prepositions, pronouns, punctuation, collocations, sentence_flow).
 
 Instructions:
@@ -80,12 +80,12 @@ Instructions:
    - "whenToUse": An explanation of when to apply this grammar rule or structure.
    - "examples": At least 3 clear, practical, real-world example sentences.
    - "keyRules": Exactly 3 key bullet points summarizing the grammatical rules.
-2. Generate 5 distinct, high-quality, extremely challenging practice "problems" at C1/C2 level. These should target sophisticated grammatical anomalies, subtle nuances, conditional inversions (e.g. 'Had I known...'), subjunctive states, split infinitives, zero-articles for specific classes of nouns, or complex modifier placement.
+2. Generate 5 distinct, high-quality, practical practice "problems" at B1/B2 level. Focus on common grammatical mistakes that intermediate speakers make, such as simple/progressive aspect confusion, common relative pronoun usage, correct preposition pairings, modal verb nuances, basic conditional clauses, and general sentence flow. Avoid obscure academic exceptions or native-level linguistic anomalies.
 3. Mix problem types: include some "multiple-choice" problems and some "fill-in-the-blank" problems.
-4. Ensure the sentences and questions focus on advanced traps, register shifts, and common high-level pitfalls for intermediate-to-advanced learners.
-5. In the "explanation", provide a simple, clear explanation in plain English (avoiding overly complex academic jargon).
+4. Ensure the sentences and questions focus on helpful corrections, register shifts, and common pitfalls for everyday speaking and professional communication.
+5. In the "explanation", provide a simple, clear explanation in plain English.
    - For multiple-choice questions: You MUST explicitly list and explain EVERY single option/choice (both the correct one and all incorrect choices). For each option, provide a 1-sentence description/rule in simple terms, and a clear example sentence showing "when to use it" (for correct options) or "how it is used/why it fails" (for wrong options). Use bullet points and clear bold headings for each option.
-   - For fill-in-the-blank questions: Explain why common wrong inputs (e.g., using 'the' instead of zero-article) are incorrect and provide simple comparative example sentences.
+   - For fill-in-the-blank questions: Explain why common wrong inputs are incorrect and provide simple comparative example sentences.
    Keep terms simple, direct, and helpful.
 
 Output strictly valid JSON matching the requested schema.
@@ -100,7 +100,8 @@ Output strictly valid JSON matching the requested schema.
        throw new Error("No quiz output generated");
     }
 
-    const result = JSON.parse(outputText);
+    const cleanedJson = cleanJsonString(outputText);
+    const result = JSON.parse(cleanedJson);
     return NextResponse.json(result);
 
   } catch (error: any) {
