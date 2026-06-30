@@ -1,9 +1,10 @@
 "use client";
 
 import React from "react";
-import { 
-  Check, Compass, BookOpen, Mic, MessageSquare, 
-  Briefcase, Zap, Star, Shield 
+import {
+  Check, Compass, BookOpen, Mic, MessageSquare,
+  Briefcase, Zap, Star, Shield,
+  Globe
 } from "lucide-react";
 
 interface StepNode {
@@ -153,6 +154,21 @@ export function LearningPath({ completedSteps, stats, onLaunchStep }: LearningPa
         accent: "#8b5cf6"
       },
       xpAward: 25
+    },
+    {
+      id: "devtalk",
+      title: "DevTalk Match",
+      subtitle: "1:1 Live Communication Matching",
+      icon: Globe,
+      themeColor: "orange",
+      themeClasses: {
+        bg: "bg-orange-50 border-orange-850 text-orange-850",
+        border: "border-orange-850",
+        text: "text-orange-850",
+        activeRing: "ring-orange-400/50",
+        accent: "#f97316"
+      },
+      xpAward: 40
     }
   ];
 
@@ -167,18 +183,18 @@ export function LearningPath({ completedSteps, stats, onLaunchStep }: LearningPa
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 md:py-16 relative z-10">
-      
+
       {/* Centered serpentine path container */}
       <div className="flex flex-col items-center py-6 relative w-full">
-        
+
         {/* Winding Connection Line SVG Background */}
         <div className="absolute inset-0 top-16 bottom-16 w-full flex justify-center pointer-events-none z-0">
           <svg className="w-32 h-full stroke-slate-300 opacity-60" viewBox="0 0 100 1000" preserveAspectRatio="none">
-            <path 
-              d="M 50 0 C 150 120, -50 250, 50 370 C 150 490, -50 620, 50 740 C 150 860, -50 950, 50 1000" 
-              fill="none" 
-              stroke="#1e293b" 
-              strokeWidth="3" 
+            <path
+              d="M 50 0 C 150 120, -50 250, 50 370 C 150 490, -50 620, 50 740 C 150 860, -50 950, 50 1000"
+              fill="none"
+              stroke="#1e293b"
+              strokeWidth="3"
               strokeDasharray="8,6"
             />
           </svg>
@@ -190,16 +206,16 @@ export function LearningPath({ completedSteps, stats, onLaunchStep }: LearningPa
             const status = getStepStatus(step.id);
             const isActiveTarget = step.id === activeTargetId;
             const Icon = step.icon;
-            
+
             // Serpentine placement: alternate left, center, right classes
-            const alignClass = 
-              idx % 3 === 0 ? "justify-center" : 
-              idx % 3 === 1 ? "justify-start pl-6 md:pl-10" : 
-              "justify-end pr-6 md:pr-10";
+            const alignClass =
+              idx % 3 === 0 ? "justify-center" :
+                idx % 3 === 1 ? "justify-start pl-6 md:pl-10" :
+                  "justify-end pr-6 md:pr-10";
 
             return (
               <div key={step.id} className={`flex ${alignClass} w-full transition-transform`}>
-                <div 
+                <div
                   className="flex items-center gap-4 transition-all duration-300 group"
                 >
                   {/* Left alignment for text on alternate steps */}

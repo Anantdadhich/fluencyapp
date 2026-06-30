@@ -12,8 +12,8 @@ interface GenerateContentOptions {
 
 // Fallback order of models to maximize speed and guarantee availability
 const MODELS_FALLBACK_ORDER = [
-  "gemini-2.5-flash",            // Primary: Fast, high intelligence, low latency
-  "gemini-2.5-flash-lite",       // Secondary fallback: Extremely low latency, lightweight
+  "gemini-2.5-flash-lite",       // Primary: Extremely low latency, lightweight
+  "gemini-2.5-flash",            // Secondary: Fast, high intelligence, low latency
   "gemini-1.5-flash"             // Tertiary fallback: Legacy stable flash
 ];
 

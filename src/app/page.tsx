@@ -9,11 +9,12 @@ import { VocabClass } from "@/components/VocabClass";
 import { FluencyTrainer } from "@/components/FluencyTrainer";
 import { RoleplaySimulator } from "@/components/RoleplaySimulator";
 import { ConfidenceStudio } from "@/components/ConfidenceStudio";
+import { Talk } from "@/components/talk";
 import { LearningPath } from "@/components/LearningPath";
 import { AnalysisResponse } from "@/lib/types";
-import { Flame, Award, Shield, ArrowLeft, Trophy, Star, Sparkles, CheckCircle2, Menu, X } from "lucide-react";
+import { Flame, Award, Shield, ArrowLeft, Trophy, Star, Sparkles, CheckCircle2, Menu, X, Globe } from "lucide-react";
 
-type ActiveView = "learning_path" | "workspace" | "basic_learning" | "vocab_practice" | "roleplay" | "fluency_trainer" | "confidence_studio";
+type ActiveView = "learning_path" | "workspace" | "basic_learning" | "vocab_practice" | "roleplay" | "fluency_trainer" | "confidence_studio" | "devtalk";
 
 export default function Home() {
   const [hasKey, setHasKey] = useState<boolean | null>(null);
@@ -60,11 +61,11 @@ export default function Home() {
         const parsed = JSON.parse(storedStats);
         let streak = parsed.streak || 0;
         const lastDateStr = parsed.lastCompletedDate;
-        
+
         if (lastDateStr) {
           const today = new Date().toDateString();
           const lastDate = new Date(lastDateStr).toDateString();
-          
+
           if (today !== lastDate) {
             const diffTime = Math.abs(new Date(today).getTime() - new Date(lastDate).getTime());
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -73,7 +74,7 @@ export default function Home() {
             }
           }
         }
-        
+
         setStats({
           streak,
           completedSessions: parsed.completedSessions || 0,
@@ -92,7 +93,7 @@ export default function Home() {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       if (!AudioContextClass) return;
       const ctx = new AudioContextClass();
-      
+
       const playNote = (freq: number, startTime: number, duration: number) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -131,6 +132,8 @@ export default function Home() {
       setActiveView("roleplay");
     } else if (stepId === "confidence") {
       setActiveView("confidence_studio");
+    } else if (stepId === "devtalk") {
+      setActiveView("devtalk");
     }
   };
 
@@ -142,12 +145,12 @@ export default function Home() {
   const handleSessionComplete = () => {
     const today = new Date().toDateString();
     let newStreak = stats.streak;
-    
+
     if (stats.lastCompletedDate !== today) {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toDateString();
-      
+
       if (stats.lastCompletedDate === yesterdayStr || stats.streak === 0) {
         newStreak += 1;
       } else {
@@ -184,7 +187,7 @@ export default function Home() {
 
       // Play victory chime and show overlay
       playVictorySound();
-      
+
       // Determine step human name for the victory modal
       let friendlyName = "Speaking Challenge";
       if (activePathStep === "diagnostic") friendlyName = "Speech Diagnostic Assessment";
@@ -206,7 +209,7 @@ export default function Home() {
   const handleAnalyze = async (text: string, audioBlob?: Blob): Promise<any> => {
     setIsProcessing(true);
     setError("");
-    
+
     try {
       let base64Audio = "";
       let audioMimeType = "";
@@ -230,7 +233,7 @@ export default function Home() {
       });
 
       const data = await res.json();
-      
+
       if (!res.ok) {
         throw new Error(data.error || "Failed to analyze text");
       }
@@ -265,13 +268,13 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-color)] flex flex-col relative z-10">
-      
+
       {/* 1. HEADER: Rebranded navigation header with hamburger dropdown for mobile */}
       <header className="main-header w-full bg-white border-b-3 border-slate-800 shadow-[0px_3px_0px_rgba(30,41,59,1)] flex flex-col relative z-50">
         <div className="flex items-center justify-between px-4 md:px-6 h-16 w-full gap-4">
-          
+
           {/* Logo / Brand Name Button */}
-          <button 
+          <button
             onClick={() => {
               setActiveView("learning_path");
               setActivePathStep(null);
@@ -351,11 +354,20 @@ export default function Home() {
             >
               <Shield className="w-4 h-4" /> Confidence
             </button>
+            <button
+              onClick={() => {
+                setActiveView("devtalk");
+                setActivePathStep(null);
+              }}
+              className={`nav-tab h-full flex items-center gap-1.5 font-medium ${activeView === "devtalk" ? "active text-orange-650 font-semibold" : "text-orange-700 hover:text-orange-850"}`}
+            >
+              <Globe className="w-4 h-4" /> Fluency Match
+            </button>
           </nav>
 
           {/* Right side: Streak and controls (desktop inline, mobile icons + hamburger toggle) */}
           <div className="flex items-center gap-2 md:gap-4 text-xs font-mono text-[var(--text-secondary)]">
-            
+
             {/* Streak & Drills indicator */}
             <div className="flex items-center gap-2 md:gap-2.5">
               <div className="flex items-center gap-1" title="Daily Streak">
@@ -368,7 +380,7 @@ export default function Home() {
               </div>
             </div>
 
-            <button 
+            <button
               onClick={handleResetKey}
               className="hidden md:block text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors font-medium border-l border-slate-300 pl-3"
             >
@@ -481,7 +493,7 @@ export default function Home() {
                 <Award className="w-4 h-4 text-yellow-500" />
                 <span>Drills Completed: <strong>{stats.completedSessions}</strong></span>
               </div>
-              <button 
+              <button
                 onClick={() => {
                   setMobileMenuOpen(false);
                   handleResetKey();
@@ -507,7 +519,7 @@ export default function Home() {
         ) : activeView === "workspace" ? (
           <main className="app-container-workspace p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 h-auto min-h-[calc(100vh-4rem)] lg:h-[calc(100vh-4rem)]">
             <div className="flex flex-col gap-4 lg:overflow-y-auto">
-              <UnifiedTextWorkspace 
+              <UnifiedTextWorkspace
                 onAnalyze={handleAnalyze}
                 isProcessing={isProcessing}
                 highlights={analysis?.highlights || []}
@@ -520,32 +532,36 @@ export default function Home() {
           </main>
         ) : activeView === "basic_learning" ? (
           <div className="py-6 px-4 md:px-6 max-w-5xl mx-auto">
-            <GrammarHub 
-              onComplete={handleSessionComplete} 
+            <GrammarHub
+              onComplete={handleSessionComplete}
               initialTopicId={activePathStep === "grammar" ? "tenses" : null}
             />
           </div>
         ) : activeView === "vocab_practice" ? (
           <div className="py-6 px-4 md:px-6 max-w-5xl mx-auto">
-            <VocabClass 
-              onComplete={handleSessionComplete} 
+            <VocabClass
+              onComplete={handleSessionComplete}
               initialThemeId={activePathStep === "vocab" ? "executive" : null}
             />
           </div>
         ) : activeView === "roleplay" ? (
           <div className="py-6 px-4 md:px-6 max-w-5xl mx-auto">
-            <RoleplaySimulator 
-              onComplete={handleSessionComplete} 
+            <RoleplaySimulator
+              onComplete={handleSessionComplete}
               initialPersonaId={
                 activePathStep === "roleplay_salary" ? "salary" :
-                activePathStep === "roleplay_venture" ? "venture" :
-                activePathStep === "roleplay_client" ? "client" : null
+                  activePathStep === "roleplay_venture" ? "venture" :
+                    activePathStep === "roleplay_client" ? "client" : null
               }
             />
           </div>
         ) : activeView === "fluency_trainer" ? (
           <div className="py-6 px-4 md:px-6 max-w-5xl mx-auto">
             <FluencyTrainer onComplete={handleSessionComplete} />
+          </div>
+        ) : activeView === "devtalk" ? (
+          <div className="py-6 px-4 md:px-6 max-w-7xl mx-auto h-full">
+            <Talk onComplete={handleSessionComplete} />
           </div>
         ) : (
           <div className="py-6 px-4 md:px-6 max-w-5xl mx-auto h-full">
@@ -558,7 +574,7 @@ export default function Home() {
       {showVictory && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
           <div className="glass-panel p-8 max-w-md w-full bg-white relative text-center overflow-hidden animate-scale-up">
-            
+
             {/* Playful Confetti Stickers */}
             <div className="absolute top-4 left-6 text-2xl animate-bounce">✨</div>
             <div className="absolute top-8 right-6 text-2xl animate-bounce delay-150">🎉</div>

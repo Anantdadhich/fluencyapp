@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { Type, Schema } from "@google/genai";
-import { generateGeminiContent } from "@/lib/gemini";
+import { generateGeminiContent, cleanJsonString } from "@/lib/gemini";
 
 export const runtime = "nodejs";
 
@@ -64,7 +64,8 @@ Output strictly valid JSON matching the requested schema.
        throw new Error("No evaluation output generated");
     }
 
-    const result = JSON.parse(outputText);
+    const cleanedJson = cleanJsonString(outputText);
+    const result = JSON.parse(cleanedJson);
     return NextResponse.json(result);
 
   } catch (error: any) {
